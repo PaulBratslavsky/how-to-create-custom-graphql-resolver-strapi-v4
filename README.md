@@ -102,7 +102,7 @@ query {
 
 You should see the results on the right:
 
-![[Screen Shot 2022-06-24 at 3.34.11 PM.png]]
+<img width="1510" alt="Screen Shot 2022-06-24 at 3 34 11 PM" src="https://user-images.githubusercontent.com/6153188/175760762-b8ff32e5-2f62-4dba-8470-f42fce56d82b.png">
 
 By default, the Strapi GraphQL plugin has [Shadow CRUD](https://docs.strapi.io/developer-docs/latest/plugins/graphql.html#shadow-crud) enabled, a useful feature eliminating the need to specify any definitions, queries, mutations, or anything else.
 
@@ -146,7 +146,7 @@ In your GraphQL playground `localhost:1337/graphql` run the following query:
 
 As you can see, we query our article by the id.
 
-![[2022-06-24_15-55-00.png]]
+<img width="798" alt="2022-06-24_15-55-00" src="https://user-images.githubusercontent.com/6153188/175760786-4e26354b-7352-425a-ad89-655efc3b3c47.png">
 
 And return the following data:
 
@@ -169,7 +169,7 @@ And return the following data:
 
 If we query the article via the **_slug_**, it will not work because our current resolver does not yet support this functionality.
 
-![[Screen Shot 2022-06-24 at 3.59.16 PM.png]]
+<img width="810" alt="Screen Shot 2022-06-24 at 3 59 16 PM" src="https://user-images.githubusercontent.com/6153188/175760795-efc98703-a358-4180-8d73-821afff925b0.png">
 
 Let's look at how we can extend our **_article resolver_** to add this functionality.
 
@@ -181,11 +181,11 @@ Let's take a look inside our index.js file at `backend/src/index.js`
 
 Normally our file will look like this.
 
-![[Screen Shot 2022-06-24 at 4.11.12 PM.png]]
+<img width="975" alt="Screen Shot 2022-06-24 at 4 11 12 PM" src="https://user-images.githubusercontent.com/6153188/175760807-9785129c-6fd5-426e-adb0-eaea53457fff.png">
 
 But in our current starter project, it should look like the image below.
 
-![[2022-06-24_16-15-24.png]]
+<img width="1389" alt="2022-06-24_16-15-24" src="https://user-images.githubusercontent.com/6153188/175760843-7a70e8f5-616b-4f7a-b1fe-a43ea22fa038.png">
 
 We will configure our GraphQl within the register functions, so let's add it back in.
 
@@ -346,9 +346,9 @@ module.exports = {
 };
 ```
 
-Now in our GraphQl playground we shuold be able to pass a **_slug_** instead of an **_id_** in our **_article query_**:
+Now in our GraphQl playground we should be able to pass a **_slug_** instead of an **_id_** in our **_article query_**:
 
-![[2022-06-24_23-04-03.png]]
+<img width="1512" alt="2022-06-24_23-04-03" src="https://user-images.githubusercontent.com/6153188/175760942-9cfcb635-7b33-4fe6-883e-75c2a83bd846.png">
 
 However, if you attempt to run your query right now, it will not work.
 
@@ -454,7 +454,7 @@ Once you have saved the changes to your schema, restart the server and run `yarn
 
 Success! We extended a resolver and now your query returning data based on the **_slug_**.
 
-![[Screen Shot 2022-06-24 at 11.30.53 PM.png]]
+<img width="1512" alt="Screen Shot 2022-06-24 at 11 30 53 PM" src="https://user-images.githubusercontent.com/6153188/175760963-31eba200-e4f2-4409-a5b7-f5143e6f03e0.png">
 
 Let's quickly review what each piece of our code does.
 
@@ -688,11 +688,13 @@ Once you have saved the changes to your schema, restart the server and run `yarn
 
 You should now see the results from our custom query.
 
-![[Screen Shot 2022-06-25 at 12.33.38 AM.png]]
+<img width="1510" alt="Screen Shot 2022-06-25 at 12 33 38 AM" src="https://user-images.githubusercontent.com/6153188/175760996-4b1c302c-8010-4e8e-bfc9-6fa3f6fe3f4a.png">
+
 
 You can verify our newly created query by looking at the [GraphQL Playground](http://localhost:1337/graphql) schema:
 
-![[2022-06-25_00-35-08.png]]
+<img width="1506" alt="2022-06-25_00-35-08" src="https://user-images.githubusercontent.com/6153188/175761009-0c8c9a1f-c49e-4ffe-8987-2adf1d0d82dc.png">
+
 
 ## Conclusion
 
