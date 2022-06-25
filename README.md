@@ -1,0 +1,1 @@
+# how-to-create-custom-graphql-resolver-strapi-v4
