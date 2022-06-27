@@ -59,11 +59,9 @@ Strapi will require you to generate an admin account on the initial run, like so
 
 <img width="821" alt="Screen Shot 2022-06-24 at 3 17 55 PM" src="https://user-images.githubusercontent.com/6153188/175760631-ebbee0f1-3365-4d5a-a68b-b62a30ab7add.png">
 
-
 Next, you should be able to see your Strapi admin fully set up in the context of blog:
 
 <img width="1511" alt="Screen Shot 2022-06-24 at 3 21 13 PM" src="https://user-images.githubusercontent.com/6153188/175760638-a3c86427-ac75-4a0a-9389-8d7671b7e07c.png">
-
 
 This starter should have GraphQL installed by default, If not. You can easily enable GraphQL support directly from the Strapi admin:
 
@@ -220,7 +218,7 @@ module.exports = {
   },
 
   register({ strapi }) {
-    const extensionService = strapi.plugin("graphql").service("extension");
+    const extensionService = strapi.service("plugin::graphql.extension");
     extensionService.use(// add extension code here);
   },
 };
@@ -250,7 +248,6 @@ Before filling out the logic, let's pass the following function into the `use()`
 ({ strapi }) => ({
   typeDefs: ``,
   resolvers: {},
-  resolversConfig: {},
 });
 ```
 
@@ -267,12 +264,11 @@ module.exports = {
   },
 
   register({ strapi }) {
-    const extensionService = strapi.plugin("graphql").service("extension");
+    const extensionService = strapi.service("plugin::graphql.extension");
 
     extensionService.use(({ strapi }) => ({
       typeDefs: ``,
       resolvers: {},
-      resolversConfig: {},
     }));
   },
 };
@@ -305,11 +301,11 @@ It takes an **id** and returns our **ArticleEntityResponse**, which was automati
 Let's override it to take a **_slug_** vs **_id_**. In our code, add this snippet:
 
 ```javascript
-	typeDefs: `
-		extend type Query {
-			article(slug: String!): ArticleEntityResponse
-		}
-	`,
+  typeDefs: `
+    type Query {
+      article(slug: String!): ArticleEntityResponse
+    }
+  `,
 ```
 
 This query specifies the query name the parameters will take; in this case:
@@ -331,14 +327,14 @@ module.exports = {
   },
 
   register({ strapi }) {
-    const extensionService = strapi.plugin("graphql").service("extension");
+    const extensionService = strapi.service("plugin::graphql.extension");
 
     extensionService.use(({ strapi }) => ({
       typeDefs: `
-		extend type Query {
-			article(slug: String!): ArticleEntityResponse
-		}
-	`,
+        type Query {
+          article(slug: String!): ArticleEntityResponse
+        }
+      `,
       resolvers: {},
       resolversConfig: {},
     }));
@@ -399,10 +395,10 @@ module.exports = {
   },
 
   register({ strapi }) {
-    const extensionService = strapi.plugin("graphql").service("extension");
+    const extensionService = strapi.service("plugin::graphql.extension");
     extensionService.use(({ strapi }) => ({
       typeDefs: `
-        extend type Query {
+        type Query {
           article(slug: String!): ArticleEntityResponse
         }
       `,
@@ -516,7 +512,7 @@ module.exports = {
   },
 
   register({ strapi }) {
-    const extensionService = strapi.plugin("graphql").service("extension");
+    const extensionService = strapi.service("plugin::graphql.extension");
 
     // Previous code from before
     extensionService.use(({ strapi }) => ({}));
@@ -596,7 +592,7 @@ module.exports = {
   },
 
   register({ strapi }) {
-    const extensionService = strapi.plugin("graphql").service("extension");
+    const extensionService = strapi.service("plugin::graphql.extension");
 
     // Previous code from before
     extensionService.use(({ strapi }) => ({}));
@@ -690,11 +686,9 @@ You should now see the results from our custom query.
 
 <img width="1510" alt="Screen Shot 2022-06-25 at 12 33 38 AM" src="https://user-images.githubusercontent.com/6153188/175760996-4b1c302c-8010-4e8e-bfc9-6fa3f6fe3f4a.png">
 
-
 You can verify our newly created query by looking at the [GraphQL Playground](http://localhost:1337/graphql) schema:
 
 <img width="1506" alt="2022-06-25_00-35-08" src="https://user-images.githubusercontent.com/6153188/175761009-0c8c9a1f-c49e-4ffe-8987-2adf1d0d82dc.png">
-
 
 ## Conclusion
 
