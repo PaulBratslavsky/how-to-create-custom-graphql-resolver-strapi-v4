@@ -336,7 +336,6 @@ module.exports = {
         }
       `,
       resolvers: {},
-      resolversConfig: {},
     }));
   },
 };
@@ -423,7 +422,6 @@ module.exports = {
           },
         },
       },
-      resolversConfig: {},
     }));
   },
 };
