@@ -962,7 +962,9 @@ Go ahead and run this query:
     }
 ```
 
-To sum up, when working with GraphQL, you must create a resolver for each related item you would like to populate.  
+To sum up, when working with GraphQL, you must create a resolver for each related item you want to populate.  
+
+[Finla Code on GitHub](https://github.com/PaulBratslavsky/PaulBratslavsky-graphql-custom-resolver-strapi-v4-finalbackend/blob/master/src/index.js)
   
 Hope you enjoyed this introduction to the the basics of extending and creating custom resolvers with GralhQL in Strapi v4.
 
