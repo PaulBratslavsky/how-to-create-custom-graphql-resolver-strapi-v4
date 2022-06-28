@@ -688,6 +688,284 @@ You can verify our newly created query by looking at the [GraphQL Playground](ht
 
 <img width="1506" alt="2022-06-25_00-35-08" src="https://user-images.githubusercontent.com/6153188/175761009-0c8c9a1f-c49e-4ffe-8987-2adf1d0d82dc.png">
 
+## There is one big problem
+
+When looking at this code, everything may seem like it is working correctly, but there is an issue here, and it has something to do with passing populate to our find() method.
+
+```javascript
+const data = await strapi.services["api::writer.writer"].find({
+  populate: ["articles"],
+});
+```
+
+Whenever we pass `populate,` we will always make an additional call to fetch the **articles** data from the database even if we don't ask for it in our query.
+
+What we need to do, is to create a child resolver to query the articles instead.
+
+## Create child resolver to fetch relations
+
+First, let's refactor our previous code by removing the **articles** reference in AuthorContact:
+
+```javasript
+    type AuthorContact {
+        id: ID
+        name: String
+        email: String
+        articles: [Article] <-- REMOVE THIS
+    }
+```
+
+Now let's remove the **populate** argument that we are passing here:
+
+```javasript
+    resolvers: {
+      Query: {
+        authorsContacts: {
+          resolve: async (parent, args, context) => {
+            const data = await strapi.services["api::writer.writer"].find({
+              populate: ["articles"], <-- REMOVE THIS
+            });
+
+            return data.results.map((author) => ({
+              id: author.id,
+              name: author.name,
+              email: author.email,
+              articles: author.articles, <-- REMOVE THIS
+            }));
+          },
+        },
+      },
+    },
+```
+
+Now your code should look like this:
+
+```javascript
+extensionService.use(({ strapi }) => ({
+  typeDefs: `
+
+        type Query {
+          authorsContacts: [AuthorContact]
+        }
+
+        type AuthorContact {
+          id: ID
+          name: String
+          email: String
+        }
+
+      `,
+
+  resolvers: {
+    Query: {
+      authorsContacts: {
+        resolve: async (parent, args, context) => {
+          const data = await strapi.services["api::writer.writer"].find();
+
+          return data.results.map((author) => ({
+            id: author.id,
+            name: author.name,
+            email: author.email,
+          }));
+        },
+      },
+    },
+  },
+
+  resolversConfig: {
+    "Query.authorsContacts": {
+      auth: false,
+    },
+  },
+}));
+```
+
+Now let's do things the right way and create a child resolver to fetch articles associated with the author instead.
+
+This way, if we don't ask for the 'articles' in the query, we won't be fetching the data like in our precious example.
+
+Let's define **AuthorsArticles** type and make sure to add it to **AuthorContact** type:
+
+```javasript
+
+      type AuthorsArticles {
+        id: ID
+        title: String
+        slug: String
+        description: String
+      }
+
+      type AuthorContact {
+        id: ID
+        name: String
+        email: String
+        articles: [AuthorsArticles]
+      }
+```
+
+Now let's create our child resolver to fetch all articles associated with the author:
+
+```javascript
+    AuthorContact: {
+      articles: {
+        resolve: async (parent, args, context) => {
+
+          console.log("#############", parent.id, "#############");
+
+          const data = await strapi.services["api::article.article"].find({
+            filters: { author: parent.id },
+          });
+
+          return data.results.map((article) => ({
+            id: article.id,
+            title: article.title,
+            slug: article.slug,
+            description: article.description,
+          }));
+
+        },
+      },
+    },
+```
+
+Our completed code should look like this:
+
+```javascript
+"use strict";
+const boostrap = require("./bootstrap");
+
+module.exports = {
+  async bootstrap() {
+    await boostrap();
+  },
+
+  register({ strapi }) {
+    const extensionService = strapi.service("plugin::graphql.extension");
+
+    // Overriding the default article GraphQL resolver
+    extensionService.use(({ strapi }) => ({
+      typeDefs: `
+        type Query {
+          article(slug: String!): ArticleEntityResponse
+        }
+      `,
+      resolvers: {
+        Query: {
+          article: {
+            resolve: async (parent, args, context) => {
+              const { toEntityResponse } = strapi.service(
+                "plugin::graphql.format"
+              ).returnTypes;
+
+              const data = await strapi.services["api::article.article"].find({
+                filters: { slug: args.slug },
+              });
+
+              const response = toEntityResponse(data.results[0]);
+
+              console.log("##################", response, "##################");
+
+              return response;
+            },
+          },
+        },
+      },
+    }));
+
+    // Custom query resolver to get all authors and their details.
+    extensionService.use(({ strapi }) => ({
+      typeDefs: `
+
+        type Query {
+          authorsContacts: [AuthorContact]
+        }
+
+        type AuthorsArticles {
+          id: ID
+          title: String
+          slug: String
+          description: String
+        }
+
+        type AuthorContact {
+          id: ID
+          name: String
+          email: String
+          articles: [AuthorsArticles]
+        }
+
+      `,
+
+      resolvers: {
+        Query: {
+          authorsContacts: {
+            resolve: async (parent, args, context) => {
+              const data = await strapi.services["api::writer.writer"].find();
+
+              return data.results.map((author) => ({
+                id: author.id,
+                name: author.name,
+                email: author.email,
+              }));
+            },
+          },
+        },
+
+        AuthorContact: {
+          articles: {
+            resolve: async (parent, args, context) => {
+
+              console.log("#############", parent.id, "#############");
+
+              const data = await strapi.services["api::article.article"].find({
+                filters: { author: parent.id },
+              });
+
+              return data.results.map((article) => ({
+                id: article.id,
+                title: article.title,
+                slug: article.slug,
+                description: article.description,
+              }));
+            },
+          },
+        },
+      },
+
+      resolversConfig: {
+        "Query.authorsContacts": {
+          auth: false,
+        },
+      },
+    }));
+  },
+};
+```
+
+We now have a seperate resolver to fetch `articles` that are associated with the author.
+
+Go ahead and run this query:
+
+```
+    query {
+      authorsContacts {
+        id
+        name
+        email
+        articles {
+          id
+          title
+          description
+          slug
+        }
+      }
+    }
+```
+
+To sum up, when working with GraphQL, you must create a resolver for each related item you would like to populate.  
+  
+Hope you enjoyed this introduction to the the basics of extending and creating custom resolvers with GralhQL in Strapi v4.
+
 ## Conclusion
 
 As you can see, [Strapi](https://strapi.io/) provides a highly flexible environment that can be used to create a fully functional content API in minutes. Plus, Strapi allows for full control over the API and system.
