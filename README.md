@@ -609,7 +609,7 @@ module.exports = {
           email: String
           articles: [Article]
         }
-	    `,
+      `,
 
       resolvers: {
         Query: {
@@ -661,23 +661,23 @@ return data.results.map((author) => ({
 }));
 ```
 
-We just took a look at a basic way to create a custom GraphQl resolver inStrapi v4.
+We just took a look at a basic way to create a custom GraphQl resolver in Strapi v4.
 
 Once you have saved the changes to your schema, restart the server and run `yarn develop` again to make sure the changes are reflected, and run the following query below.
 
 ```
-	query {
-	  authorsContacts {
-	    id
-	    name
-	    email
-	    articles {
-	      title
-	      description
-	      publishedAt
-	    }
-	  }
-	}
+query {
+  authorsContacts {
+    id
+    name
+    email
+    articles {
+      title
+      description
+      publishedAt
+    }
+  }
+}
 ```
 
 You should now see the results from our custom query.
@@ -690,7 +690,7 @@ You can verify our newly created query by looking at the [GraphQL Playground](ht
 
 ## There is one big problem
 
-When looking at this code, everything may seem like it is working correctly, but there is an issue here, and it has something to do with passing populate to our find() method.
+When looking at this code, everything may seem like it is working correctly, but there is an issue here, and it has something to do with passing `populate` to our `find()` method.
 
 ```javascript
 const data = await strapi.services["api::writer.writer"].find({
@@ -698,9 +698,9 @@ const data = await strapi.services["api::writer.writer"].find({
 });
 ```
 
-Whenever we pass `populate,` we will always make an additional call to fetch the **articles** data from the database even if we don't ask for it in our query.
+Whenever we pass `populate,` we will always make an additional call to fetch the **articles** data from the database even if we don't explicitly ask for it in our query.
 
-What we need to do, is to create a child resolver to query the articles instead.
+What we need to do, is to create a [resolver chain](https://www.apollographql.com/docs/apollo-server/data/resolvers/#resolver-chains) to query the articles separately.
 
 ## Create child resolver to fetch relations
 
@@ -782,25 +782,25 @@ extensionService.use(({ strapi }) => ({
 
 Now let's do things the right way and create a child resolver to fetch articles associated with the author instead.
 
-This way, if we don't ask for the 'articles' in the query, we won't be fetching the data like in our precious example.
+This way, if we don't ask for the 'articles' in the query, we won't be fetching the data like in our previous example.
 
 Let's define **AuthorsArticles** type and make sure to add it to **AuthorContact** type:
 
-```javasript
+```graphql
 
-      type AuthorsArticles {
-        id: ID
-        title: String
-        slug: String
-        description: String
-      }
+type AuthorsArticles {
+  id: ID
+  title: String
+  slug: String
+  description: String
+}
 
-      type AuthorContact {
-        id: ID
-        name: String
-        email: String
-        articles: [AuthorsArticles]
-      }
+type AuthorContact {
+  id: ID
+  name: String
+  email: String
+  articles: [AuthorsArticles]
+}
 ```
 
 Now let's create our child resolver to fetch all articles associated with the author:
@@ -942,29 +942,29 @@ module.exports = {
 };
 ```
 
-We now have a seperate resolver to fetch `articles` that are associated with the author.
+We now have a separate resolver to fetch `articles` that are associated with the author.
 
 Go ahead and run this query:
 
 ```
-    query {
-      authorsContacts {
-        id
-        name
-        email
-        articles {
-          id
-          title
-          description
-          slug
-        }
-      }
+query {
+  authorsContacts {
+    id
+    name
+    email
+    articles {
+      id
+      title
+      description
+      slug
     }
+  }
+}
 ```
 
-To sum up, when working with GraphQL, you must create a resolver for each related item you want to populate.  
+To sum up, when working with GraphQL, you should create a resolver for each related item you want to populate.  
 
-[Finla Code on GitHub](https://github.com/PaulBratslavsky/PaulBratslavsky-graphql-custom-resolver-strapi-v4-finalbackend/blob/master/src/index.js)
+[Final Code on GitHub](https://github.com/PaulBratslavsky/PaulBratslavsky-graphql-custom-resolver-strapi-v4-finalbackend/blob/master/src/index.js)
   
 Hope you enjoyed this introduction to the the basics of extending and creating custom resolvers with GralhQL in Strapi v4.
 
